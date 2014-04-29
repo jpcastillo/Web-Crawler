@@ -4,7 +4,7 @@ web-search-engine
 Introduction to Information Retrieval
 
 Example of use:
-[user@server]./crawler.sh <seed-File:seed.txt> <num-pages: 10000> <hops-away: 6>  <output-dir>
+[user@server]./run.sh string_seed_file int_num_pages int_hops_away string_output_dir
 
 
 Part A.
