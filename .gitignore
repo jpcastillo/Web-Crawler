@@ -11,3 +11,6 @@ hs_err_pid*
 
 # Compiled files (bytecode)
 *.class
+
+# My notes
+*.notes

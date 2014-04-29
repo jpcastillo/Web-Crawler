@@ -61,4 +61,4 @@ fi
 
 #echo "Time to run crawler binary with the below arguements!!!";
 #echo -e "Seed File: $seed_file\nNumber of Pages: $num_pages\nNumber of Hops: $hops_away\nOutput Diectory: $output_dir";
-exec java Crawler $seed_file $num_pages $hops_away $output_dir
+exec java Main $seed_file $num_pages $hops_away $output_dir
