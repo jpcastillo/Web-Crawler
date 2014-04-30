@@ -265,7 +265,7 @@ document.getElementById("masthead_home").style['backgroundImage'] = 'url(/images
             <li><a href="/privacy.html">Privacy Policy</a></li>
             <li><a href="/terms.html" accesskey="8" title="Terms and Conditions">Terms and Conditions</a></li>
             <li>&copy; 2014 Regents of the University of California</li>
-            <li>Last modified: 2014-Apr-29</li>
+            <li>Last modified: 2014-Apr-30</li>
          </ul>
       </div>
 
