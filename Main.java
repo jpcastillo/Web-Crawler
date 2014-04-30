@@ -92,7 +92,7 @@ class Crawler {
 		if (crawled.length()==0||parent.length()==0) {
 			return "";
 		}
-		boolean has_domain_name = Pattern.matches("^(.*)"+good_gtld+"$",crawled);
+		boolean has_domain_name = Pattern.matches("^(.*)(\\.){1}"+good_gtld+"$",crawled);
 		boolean has_protocol = Pattern.matches("^(https?://){1}.*$",crawled);
 
 		if (has_protocol) {
@@ -146,7 +146,7 @@ class Crawler {
 		boolean parent_is_file = false;
 		for (int i = 0; i < splitpar.length; ++i) {
 			//if parent element matches pattern of domain name save index
-			if ( Pattern.matches("^(.*)"+good_gtld+"$",splitpar[i]) ) {
+			if ( Pattern.matches("^(.*)(\\.){1}"+good_gtld+"$",splitpar[i]) ) {
 				domain_index = i;
 			}
 			//check to see if parent url a directory or absolute path to file
@@ -161,7 +161,7 @@ class Crawler {
 		if (numDocRoot==0&&numDotDot>0) {
 			int control = 0;
 			if (numDotDot > allowableParentUps) {
-				control = (parent_is_file) ? domain_index+allowableParentUps-1 : domain_index+allowableParentUps;
+				control = domain_index+1;
 			}
 			else {
 				control = (parent_is_file) ? splitpar.length-numDotDot-1 : splitpar.length-numDotDot;
@@ -278,8 +278,9 @@ public class Main {
 
       	Crawler spidey = new Crawler(seedfile,outputdir);
       	spidey.start();
+
       	String seed_url = "http://www.ucr.edu/one/two/three/four/computer.html";
-      	String crawled_url = "../one/index.html";
+      	String crawled_url = "../../../../hey/index.html";
       	System.out.println("SeedURL: "+seed_url);
       	System.out.println("CrawedURL: "+crawled_url);
       	System.out.println("New URL: "+spidey.processURL(crawled_url,seed_url));
