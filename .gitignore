@@ -14,3 +14,6 @@ hs_err_pid*
 
 # My notes
 *.notes
+
+# Ignore output directory
+output_dir/*
