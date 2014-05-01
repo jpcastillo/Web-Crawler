@@ -57,18 +57,40 @@ class Crawler {
 	public void start() {
 		try {
 			//URL String Requires protcol! HTTPS/HTTP
-			URL url = new URL("http://www.ucr.edu");
+			URL url = new URL("http://www.ucr.edu/");//http://www.ucr.edu/students/computer.html");
 			URLConnection connection = url.openConnection();
 			BufferedReader buffin = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String html = "", line;
-			while ((line = buffin.readLine()) != null) {
-			   html += line + System.getProperty("line.separator");
+			String html_src = "", cur_line;
+			while ((cur_line = buffin.readLine()) != null) {
+			   html_src += cur_line + System.getProperty("line.separator");
 			}
-			//System.out.println(html);
-			//NO Forward slashes in FileName or Colons!
-		  	HTMLWriter writer = new HTMLWriter(outputdir+"/"+"www.ucr.edu");
-		  	writer.write(html);
+			//System.out.println(html_src);
+			String url_str = url.getHost() + url.getPath();
+			//NO Forward slashes in FileName or Colons or Dots!
+		  	HTMLWriter writer = new HTMLWriter( outputdir+"/"+url_str.replaceAll("/|\\.","") );
+		  	writer.write(html_src);
 		  	writer.close();
+
+			/* 
+				Some testing of Java URL methods to learn what they do 
+				and how i may use them.
+			*/
+			/*
+			System.out.println("URL is " + url.toString());
+			System.out.println("protocol is "
+			                        + url.getProtocol());
+			System.out.println("authority is "
+			                        + url.getAuthority());
+			System.out.println("file name is " + url.getFile());
+			System.out.println("host is " + url.getHost());
+			System.out.println("path is " + url.getPath());
+			System.out.println("port is " + url.getPort());
+			System.out.println("default port is "
+			                       + url.getDefaultPort());
+			System.out.println("query is " + url.getQuery());
+			System.out.println("ref is " + url.getRef());
+			*/
+		  	getLinksFromPage(html_src,url_str);
 		}
 		catch(MalformedURLException mue) {
 			System.out.println("Bad URL: "+mue.getMessage());
@@ -92,7 +114,7 @@ class Crawler {
 		if (crawled.length()==0||parent.length()==0) {
 			return "";
 		}
-		boolean has_domain_name = Pattern.matches("^(.*)(\\.){1}"+good_gtld+"$",crawled);
+		boolean has_domain_name = Pattern.matches("^(.*)(\\.){1}"+good_gtld+".*$",crawled);//hmmmm
 		boolean has_protocol = Pattern.matches("^(https?://){1}.*$",crawled);
 
 		if (has_protocol) {
@@ -103,7 +125,7 @@ class Crawler {
 				//protocol but no domain name. probably relative path.
 				//let's strip protocol and pass to generateURL
 				String tmp = crawled.replaceAll("https?://","");
-				System.out.println("tmp: "+tmp);
+				//System.out.println("tmp: "+tmp);
 				return fixURL(tmp,parent);
 			}
 		}
@@ -204,11 +226,76 @@ class Crawler {
 		return newUrl;
 	}
 
+	// a helper function for counting the number of occurrences of a regex in
+	// any given string.
 	public int countOccurrencesOf(String regex, String str) {
 	    Matcher m = Pattern.compile(regex).matcher(str);
-	    int count = 0;
+	    int count;
 	    for (count = 0; m.find(); count++);
 	    return count;
+	}
+
+	// fileContents is the HTML source code
+	// fileURL is the URL associated with fileContents -- later known 
+	// as parent URL to crawled links
+	public void getLinksFromPage(String fileContents, String fileURL) {
+		System.out.println("fileURL: "+fileURL);
+		//Let's first construct regex patterns
+
+		// patterns are case insensitive
+		String atag_pattern = "(?i)<a([^>]+)>(.+?)</a>";
+		//(?i)href\s*=\s*(\"([^\"]*\")|'[^']*'|([^'\">\s]+))
+		String href_pattern = "(?i)href\\s*=\\s*(\"([^\"]*\")|'[^']*'|([^'\">\\s]+))";
+		Pattern atagP = Pattern.compile(atag_pattern);
+		Pattern hrefP = Pattern.compile(href_pattern);
+		
+		// create a java matcher for searching through page contents - returns boolean
+		Matcher atag_match = atagP.matcher(fileContents);
+
+        while (atag_match.find()) {
+
+            // the regex used for aTags has two groups
+            // first group is the attributes of the aTag
+            // second group is the text that is wrapped by the aTag or
+            // the anchor text
+
+			// Let's get the contents of a tag
+			// includes href among other attributes like title
+            String href = atag_match.group(1);
+            //System.out.println("href: "+href);
+
+            // let's get the anchor text of the aTag
+            String anchorText = atag_match.group(2);
+
+            // let's build a java matcher for the href attribute
+            Matcher href_match = hrefP.matcher(href);
+            while (href_match.find()) {
+
+            	// let's capture the link here. group 1 contains the link enclosed
+            	// by double quotes. so we have to strip these quotes out.
+                String crawled_link = href_match.group(1).replaceAll("\"","");
+
+                // We must eliminate bookmarks from URL or discard URL if only this
+				if (crawled_link.charAt(0)=='#' || crawled_link.charAt(0)=='?') {
+					continue;
+				}
+				int hashMarkIndex = crawled_link.indexOf('#');
+				if (hashMarkIndex != -1) {
+					crawled_link = crawled_link.substring(0, hashMarkIndex);
+				}
+				hashMarkIndex = crawled_link.indexOf('?');
+				if (hashMarkIndex != -1) {
+					crawled_link = crawled_link.substring(0, hashMarkIndex);
+				}
+
+                //System.out.println("LinkE: "+anchorText);
+                //System.out.println("LinkL: "+crawled_link);
+                String fixedlink = processURL(crawled_link,"http://www.ucr.edu/");
+                if (fixedlink.length()>0) {
+                	System.out.println("LinkL: "+fixedlink);
+                }
+            }
+        }
 	}
 }
 
@@ -284,6 +371,7 @@ public class Main {
       	System.out.println("SeedURL: "+seed_url);
       	System.out.println("CrawedURL: "+crawled_url);
       	System.out.println("New URL: "+spidey.processURL(crawled_url,seed_url));
+      	//spidey.getLinksFromPage("<a href=\"http://campusmap.ucr.edu/\">Campus Map</a>");
 	}
 }
 
