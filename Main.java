@@ -54,20 +54,22 @@ class Crawler {
   		seedfile=_seedfile;
   		outputdir=_outputdir;
   	}
-	public void start() {
+	public void fetchURL(String target_url) {
 		try {
 			//URL String Requires protcol! HTTPS/HTTP
-			URL url = new URL("http://www.ucr.edu/");//http://www.ucr.edu/students/computer.html");
+			URL url = new URL(target_url);
 			URLConnection connection = url.openConnection();
 			BufferedReader buffin = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
 			String html_src = "", cur_line;
 			while ((cur_line = buffin.readLine()) != null) {
 			   html_src += cur_line + System.getProperty("line.separator");
 			}
-			//System.out.println(html_src);
+
 			String url_str = url.getHost() + url.getPath();
-			//NO Forward slashes in FileName or Colons or Dots!
-		  	HTMLWriter writer = new HTMLWriter( outputdir+"/"+url_str.replaceAll("/|\\.","") );
+
+			//Remove all illegal filename characters and replace with underscore
+		  	HTMLWriter writer = new HTMLWriter( outputdir+"/"+url_str.replaceAll("[^a-zA-Z0-9\\.\\-\\_]","_") );
 		  	writer.write(html_src);
 		  	writer.close();
 
@@ -259,16 +261,15 @@ class Crawler {
             // second group is the text that is wrapped by the aTag or
             // the anchor text
 
-			// Let's get the contents of a tag
-			// includes href among other attributes like title
-            String href = atag_match.group(1);
-            //System.out.println("href: "+href);
+			// Let's get the contents the aTag. This includes attributes
+			// like href, title, id, etc.
+            String attr = atag_match.group(1);
 
             // let's get the anchor text of the aTag
             String anchorText = atag_match.group(2);
 
             // let's build a java matcher for the href attribute
-            Matcher href_match = hrefP.matcher(href);
+            Matcher href_match = hrefP.matcher(attr);
             while (href_match.find()) {
 
             	// let's capture the link here. group 1 contains the link enclosed
@@ -364,7 +365,8 @@ public class Main {
       	log.write(pme);
 
       	Crawler spidey = new Crawler(seedfile,outputdir);
-      	spidey.start();
+      	//http://www.ucr.edu/students/computer.html
+      	spidey.fetchURL("http://www.ucr.edu/students/computer.html");//http://www.ucr.edu/
 
       	String seed_url = "http://www.ucr.edu/one/two/three/four/computer.html";
       	String crawled_url = "../../../../hey/index.html";
