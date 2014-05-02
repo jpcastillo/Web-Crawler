@@ -5,57 +5,11 @@ import java.util.Arrays;
 import java.util.regex.*;
 import java.util.HashMap;
 import java.util.HashSet;
-//import java.util.Queue;
 import java.util.LinkedList;
 import java.util.LinkedHashMap;
-//import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
-
-/*public class Global {
-    public static AtomicInteger max_numpages;
-    public static AtomicInteger max_hopsaway;
-    public static String crawlerlog;
-}*/
-
-/*
-	Class to be used for executing threads
-*/
-/*class ThreadIt implements Runnable {
-	String seedfile, crawlerlog, outputdir;
-	AtomicInteger numpages, hopsaway;
-	public ThreadIt(String seedFile, String crawlerLogFile, Integer numPages, Integer hopsAway, String outputDir) {
-		seedfile = seedFile;
-		Global.crawlerlog = crawlerlog;
-		outputdir = outputDir;
-		Global.max_numpages.set(numPages);
-		Global.max_hopsaway.set(hopsAway);
-		numpages.set(0);
-		System.out.println("Hello world!");
-	}
-
-	public void run() {
-		try {
-	      	Crawler spidey = new Crawler(seedfile,outputdir);
-	      	//http://www.ucr.edu/students/computer.html
-	      	while(Global.max_numpages.get()==0||(readyList.size()>0&&numpages.get()<Global.max_numpages.get())) {
-		      	//spidey.fetchURL("http://www.ucr.edu/students/computer.html");
-		      	spidey.fetchURL("");
-
-		      	numpages.incrementAndGet();
-		      	//hopsaway.incrementAndGet();
-	      	}
-			// clean up!
-			Main.executor.shutdownNow();
-			Main.executor.awaitTermination(10,TimeUnit.SECONDS);
-			System.exit(0);
-		}
-		catch (InterruptedException ie) {
-			System.err.println("InterruptedException: "+ie.getMessage());
-		}
-	}
-}*/
 
 /*
 	Class to be used for writing to files. This class overwrites
@@ -120,21 +74,13 @@ class Crawler implements Runnable {
 		numpages.set(0);
 		loadSeedFile(seedfile);
 		log = new Logger(crawlerLogFile);
-
-		//System.out.println("readyList size: "+readyList.size());
-		//System.out.println("allList size: "+allList.size());
   	}
 	public void run() {
 		try {
-	      	//Crawler spidey = new Crawler(seedfile,outputdir);
 	      	//http://www.ucr.edu/students/computer.html
 	      	while(max_numpages.get()==0||(readyList.size()>0&&numpages.get()<max_numpages.get())) {
-		      	//spidey.fetchURL("http://www.ucr.edu/students/computer.html");
 		      	fetchURL(readyList.poll());
-
 		      	numpages.incrementAndGet();
-		      	//hopsaway.incrementAndGet();
-		      	//System.out.println("Hello World!");
 	      	}
 			// clean up!
 			Main.executor.shutdownNow();
@@ -167,8 +113,6 @@ class Crawler implements Runnable {
 		  	writer.write(html_src);
 		  	writer.close();
 		  	System.out.println("Wrote: "+path_file);
-		  	//log.write(target_url);
-
 
 		  	getLinksFromPage(html_src,url_str);
 		}
@@ -178,6 +122,8 @@ class Crawler implements Runnable {
 		catch(IOException ioe) {
 			System.out.println("IOException: "+ioe.getMessage());
 		}
+		catch(NullPointerException npe) {}
+		catch(IllegalArguementException iae) {}
 	}
 	public String processURL(String crawled, String parent) {
 		/*  -- Cases of crawled URL --
@@ -205,6 +151,7 @@ class Crawler implements Runnable {
 				//protocol but no domain name. probably relative path.
 				//let's strip protocol and pass to generateURL
 				String tmp = crawled.replaceAll("https?://","");
+				System.out.println("Inside processURL and I just stripped the protocol!");
 				//System.out.println("tmp: "+tmp);
 				return fixURL(tmp,parent);
 			}
@@ -214,6 +161,7 @@ class Crawler implements Runnable {
 				//URL is mostly good. just needs protocol prepended so that
 				//we may fetch the html file without error
 				crawled = "http://"+crawled;
+				System.out.println("Inside processURL and prepended PROTO!-:"+crawled);
 				return crawled;
 			}
 			else {
@@ -308,6 +256,7 @@ class Crawler implements Runnable {
 		
 		if (newUrl.length()>0&&!valid_crawled) {
 			newUrl = "http://"+newUrl;
+			System.out.println("Inside fixURL and prepended PROTO!-:"+newUrl);
 		}
 		return newUrl;
 	}
@@ -384,11 +333,15 @@ class Crawler implements Runnable {
 
                 //System.out.println("LinkE: "+anchorText);
                 //System.out.println("LinkL: "+crawled_link);
+                //////////////////// Consider modifying below!~~ //////////////////////
                 String proto = "http://";
                 String fileURL2 = fileURL;
                 if (!has_protocol) {
-                	fileURL2 = proto+fileURL;
+                	fileURL2 = proto+fileURL2;
+					System.out.println("Inside getLinksFromPage and prepended PROTO!-:"+fileURL2);
                 }
+                ///////////////////////////////////////////////////////////////////////
+
                 String fixedlink = processURL(crawled_link,fileURL2);
                 if (fixedlink.length()>0) {
                 	//System.out.println("*fileURL: "+fileURL);
@@ -419,7 +372,6 @@ class Crawler implements Runnable {
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				//System.out.println(line);
-				//readyHashMap.put(line);
                 addReadyList(line,0);
 			}
 		 
@@ -479,32 +431,13 @@ public class Main extends RobotExclusionUtil {
 	public static ExecutorService executor = Executors.newFixedThreadPool(10);
 	public static void main(String[] args) {
 
-      	String crawlerlog = "files_crawled.txt";
+      	String crawlerlog = "links_retrieved.txt";
       	String seedfile = args[0];
       	Integer numpages = Integer.parseInt(args[1]);
       	Integer hopsaway = Integer.parseInt(args[2]);
       	String outputdir = args[3];
 
-      	//String pme = "Seed File: "+seedfile+"\nNumber of Pages: "+numpages+"\nNumber of Hops Away: "+hopsaway+"\nOutput Directory: "+outputdir;
-      	//System.out.println(pme);
-
-      	/*Logger log = new Logger(crawlerlog);
-      	log.write(pme);
-
-      	Crawler spidey = new Crawler(seedfile,outputdir);
-      	//http://www.ucr.edu/students/computer.html
-      	spidey.fetchURL("http://www.ucr.edu/students/computer.html");//http://www.ucr.edu/*/
-
-      	/*String seed_url = "http://www.ucr.edu/one/two/three/four/computer.html";
-      	String crawled_url = "../../../../hey/index.html";
-      	System.out.println("SeedURL: "+seed_url);
-      	System.out.println("CrawedURL: "+crawled_url);
-      	System.out.println("New URL: "+spidey.processURL(crawled_url,seed_url));*/
-      	//spidey.getLinksFromPage("<a href=\"http://campusmap.ucr.edu/\">Campus Map</a>");
-		 
-		//spidey.loadSeedFile(seedfile);
-
-		//Runnable run_it = new ThreadIt(seedfile, crawlerlog, numpages, hopsaway, outputdir);
+		//start threading
 		Runnable run_it = new Crawler(seedfile, crawlerlog, numpages, hopsaway, outputdir);
 		executor.execute(run_it);
 	}
