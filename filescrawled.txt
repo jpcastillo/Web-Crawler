@@ -1,4 +1,0 @@
-Seed File: seed.txt
-Number of Pages: 10
-Number of Hops Away: 12
-Output Directory: output_dir
