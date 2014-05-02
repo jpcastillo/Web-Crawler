@@ -17,7 +17,7 @@ EXITDIR=13
 if [[ $# -ne $NUM_ARGS ]]; then
 	echo -e "Error: Invalid number of arguements. Expected four.\
 	\nSample usage:\
-	\n\t$0 <seed-file:seed.txt> <num-pages: 10000> <hops-away: 6> <output-dir>";
+	\n\t$0 <seed-file:seed.txt> <num-pages: 10000 or 0 for unlimited> <hops-away: 6> <output-dir>";
 	exit $EXITARGS;
 else
 
