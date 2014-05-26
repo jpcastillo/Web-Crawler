@@ -1,14 +1,18 @@
 web-search-engine
 =================
 
-Introduction to Information Retrieval
+UCR Introduction to Information Retrieval CS172
 
 Example of use:
 [user@server]./run.sh string_seed_file int_num_pages int_hops_away string_output_dir
 
+This web crawler is multi-threaded. I use a pooled approach for creating and managing threads. I implemented an HTML parser for retrieving links given in HTML 'a' tags' href attribute. I also accounted for the use of relative paths in these href attribute. I check the top level domain to filter out non-edu pages. This was my first time writing in Java so I had to pick it up quickly. I also wrote a neat bash script for running processing the command line arguements and creating any directories needed. This project was developed on UNIX and tested on UNIX and Linux.
 
+Below is a description of the requirements and information for this project:
+
+--------------------
 Part A.
-Build a Web Crawler for edu pages
+Build a Web Crawler for edu pages.
 
 Your application should read a file of seed .edu URLs and crawl the .edu pages.
 
@@ -21,17 +25,4 @@ We recommend using Java, which is the language that we will use in the discussio
 You will be graded on the correctness and efficiency of your crawler (e.g., how does it handle duplicate pages? Or is the crawler multi-threaded?).
 
 You should collect at least 5 GB of data.
-
-
-Part B.
-Build index and Web-based search interface
-
-Write a program that uses the Lucene libraries to index all the html files in the folder you created in Part A. Handle different fields like title, body, creation date (if available).
-
-
-The interface should contain a textbox, and a search button. When you click search, you should see a list of results (e.g., first 10) returned by Lucene for this query and their scores.  The list should be ordered in decreasing order of score. Handle fields as you deem appropriate. For Twitter, order by a combination of time and relevance; describe your ranking function.
-
-We recommend using Java Server Pages (JSP), which is the only Web-based language we will discuss in the discussion sections.
-
-Do not use SOLR or another framework that automatically builds the UI for you.
-
+--------------------

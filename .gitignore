@@ -16,4 +16,7 @@ hs_err_pid*
 *.notes
 
 # Ignore output directory
-output_dir/*
+output_directory/*
+
+# Retrived links file
+links_retrieved.txt

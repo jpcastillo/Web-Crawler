@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+import java.lang.IllegalArgumentException;
 
 /*
 	Class to be used for writing to files. This class overwrites
@@ -24,10 +25,10 @@ class HTMLWriter {
 			writer = new PrintWriter(file,"UTF-8");
 		}
 		catch(FileNotFoundException fnfe) {
-			System.out.println("File not found: " + fnfe.getMessage());
+			;//System.out.println("File not found: " + fnfe.getMessage());
 		}
 		catch(UnsupportedEncodingException uee) {
-			System.out.println("Unsupported Encoding Exception: " + uee.getMessage());
+			;//System.out.println("Unsupported Encoding Exception: " + uee.getMessage());
 		}
 	}
 	public void close() {
@@ -95,7 +96,7 @@ class Crawler implements Runnable {
 			if ( !(allList.get(target_url.hashCode())<=max_hopsaway.get()) ) {
 				return;
 			}
-			System.out.println("TARGET URL: "+target_url);
+			//System.out.println("TARGET URL: "+target_url);
 			URL url = new URL(target_url);
 			URLConnection connection = url.openConnection();
 			BufferedReader buffin = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -117,13 +118,13 @@ class Crawler implements Runnable {
 		  	getLinksFromPage(html_src,url_str);
 		}
 		catch(MalformedURLException mue) {
-			System.out.println("Bad URL: "+mue.getMessage());
+			;//System.out.println("Bad URL: "+mue.getMessage());
 		}
 		catch(IOException ioe) {
-			System.out.println("IOException: "+ioe.getMessage());
+			;//System.out.println("IOException: "+ioe.getMessage());
 		}
-		catch(NullPointerException npe) {}
-		catch(IllegalArguementException iae) {}
+		catch(NullPointerException npe) { ; }
+		catch(IllegalArgumentException iae) { ; }
 	}
 	public String processURL(String crawled, String parent) {
 		/*  -- Cases of crawled URL --
@@ -135,7 +136,7 @@ class Crawler implements Runnable {
 			Need to implement check on file extensions. Currently
 				incomplete. Need more rigorous checks.
 			Also add support for listings of good gTLDs and file
-				extensions. Currently only supports one of each.
+				extensions. Currently only supports one of each (edu).
 		*/
 		if (crawled.length()==0||parent.length()==0) {
 			return "";
@@ -151,7 +152,7 @@ class Crawler implements Runnable {
 				//protocol but no domain name. probably relative path.
 				//let's strip protocol and pass to generateURL
 				String tmp = crawled.replaceAll("https?://","");
-				System.out.println("Inside processURL and I just stripped the protocol!");
+				//System.out.println("Inside processURL and I just stripped the protocol!");
 				//System.out.println("tmp: "+tmp);
 				return fixURL(tmp,parent);
 			}
@@ -161,7 +162,7 @@ class Crawler implements Runnable {
 				//URL is mostly good. just needs protocol prepended so that
 				//we may fetch the html file without error
 				crawled = "http://"+crawled;
-				System.out.println("Inside processURL and prepended PROTO!-:"+crawled);
+				//System.out.println("Inside processURL and prepended PROTO!-:"+crawled);
 				return crawled;
 			}
 			else {
@@ -256,7 +257,7 @@ class Crawler implements Runnable {
 		
 		if (newUrl.length()>0&&!valid_crawled) {
 			newUrl = "http://"+newUrl;
-			System.out.println("Inside fixURL and prepended PROTO!-:"+newUrl);
+			//System.out.println("Inside fixURL and prepended PROTO!-:"+newUrl);
 		}
 		return newUrl;
 	}
@@ -338,7 +339,7 @@ class Crawler implements Runnable {
                 String fileURL2 = fileURL;
                 if (!has_protocol) {
                 	fileURL2 = proto+fileURL2;
-					System.out.println("Inside getLinksFromPage and prepended PROTO!-:"+fileURL2);
+					//System.out.println("Inside getLinksFromPage and prepended PROTO!-:"+fileURL2);
                 }
                 ///////////////////////////////////////////////////////////////////////
 
@@ -378,7 +379,7 @@ class Crawler implements Runnable {
 			br.close();
 		}
 		catch (IOException ioe) {
-			System.out.println("IOException: "+ioe.getMessage());
+			;//System.out.println("IOException: "+ioe.getMessage());
 		}
 	}
 }
@@ -402,7 +403,7 @@ class Logger {
 			fout = new BufferedWriter(fstream);
 		}
 		catch(IOException ioe) {
-			System.out.println("IOException: "+ioe.getMessage());
+			;//System.out.println("IOException: "+ioe.getMessage());
 		}
 	}
 	public synchronized void close() {
@@ -410,7 +411,7 @@ class Logger {
 			fout.close();
 		}
 		catch(IOException ioe) {
-			System.out.println("IOException: "+ioe.getMessage());
+			;//System.out.println("IOException: "+ioe.getMessage());
 		}
 	}
 	public synchronized void write(String str) {
@@ -419,7 +420,7 @@ class Logger {
 			fout.newLine();
 		}
 		catch(IOException ioe) {
-			System.out.println("IOException: "+ioe.getMessage());
+			;//System.out.println("IOException: "+ioe.getMessage());
 		}
 	}
 }
