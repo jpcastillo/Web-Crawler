@@ -1,4 +1,4 @@
-web-search-engine
+Java Web Crawler
 =================
 
 UCR Introduction to Information Retrieval CS172
@@ -22,7 +22,5 @@ All crawled pages (html files) should be stored in a folder.
 
 We recommend using Java, which is the language that we will use in the discussion sections. If you use another language, you cannot expect to get any support from the TA if you get stuck. You should not use any crawler package, since the purpose of the project is to see some of the challenges involved in building a crawler.
 
-You will be graded on the correctness and efficiency of your crawler (e.g., how does it handle duplicate pages? Or is the crawler multi-threaded?).
-
-You should collect at least 5 GB of data.
+You will be graded on the correctness and efficiency of your crawler (e.g., how does it handle duplicate pages? Or is the crawler multi-threaded?). You should collect at least 5 GB of data.
 --------------------
